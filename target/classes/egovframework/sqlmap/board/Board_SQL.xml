@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="BoardSpace">
+		
+	<typeAlias alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias alias="searchVO" type="egovframework.example.sample.service.SampleDefaultVO"/>
+	<typeAlias alias="boardVO" type="main.board.vo.BoardVO"/>
+	
+	<insert id="boardDAO.insertBoard">
+		insert into board(title, pass, name, content, hits, rdate)
+			values(
+				#title#,
+				#pass#,
+				#name#,
+				#content#,
+				0,
+				now() )
+	</insert>
+	
+	<select id="boardDAO.selectBoardList" parameterClass="searchVO" resultClass="egovMap">
+		<!-- select * 
+		from (
+			  select ROW_NUMBER() OVER (ORDER BY unq desc) as rn, 
+			         unq, 
+			   		 title, 
+					 pass, 
+					 name, 
+					 content, 
+					 hits, 
+					 date_format(rdate, '%Y-%m-%d') as rdate
+			   from board 
+		     ) b -->
+		select unq,
+			   title, 
+			   pass, 
+			   name, 
+			   content, 
+			   hits, 
+			   date_format(rdate, '%Y-%m-%d') as rdate
+	    from board
+	    where 1=1 
+	    <isNotEmpty property="searchKeyword">
+	        <isNotEmpty property="searchCondition">
+	            and $searchCondition$ like '%$searchKeyword$%'
+	        </isNotEmpty>
+    	</isNotEmpty>
+	    order by unq desc
+		limit #recordCountPerPage# offset #firstIndex#
+	</select>
+	
+	<select id="boardDAO.selectBoardTotal" parameterClass="searchVO" resultClass="java.lang.Integer">
+		select count(*) totcnt
+		from board
+		where 1=1
+		<isNotEmpty property="searchKeyword">
+	        <isNotEmpty property="searchCondition">
+	            and $searchCondition$ like '%$searchKeyword$%'
+	        </isNotEmpty>
+    	</isNotEmpty>
+	</select>
+	
+	<select id="boardDAO.selectBoardDetail" resultClass="boardVO">
+		select unq,
+			   title, 
+			   name, 
+			   content, 
+			   date_format(rdate, '%Y-%m-%d') as rdate
+		from board
+		where unq = '$unq$'
+	</select>
+	
+	<update id="boardDAO.updateBoardHits">
+		update board 
+		set hits=hits+1 
+		where unq = #unq#
+	</update>
+	
+	<update id="boardDAO.updateBoard">
+		update board
+		set title=#title#, name=#name#, content=#content#
+		where unq=#unq#
+	</update>
+	
+	<select id="boardDAO.selectBoardPass" resultClass="java.lang.Integer">
+		select count(*)
+		from board
+		where unq=#unq# and pass=#pass#
+	</select>
+	
+	<delete id="boardDAO.deleteBoard">
+		delete from board
+		where unq=#unq# and pass=#pass#
+	</delete>
+	
+</sqlMap>

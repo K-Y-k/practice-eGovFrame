@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="MemberSpace">
+
+	<typeAlias alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias alias="searchVO" type="egovframework.example.sample.service.SampleDefaultVO"/>
+	<typeAlias alias="memberVO" type="main.member.vo.MemberVO"/>
+
+
+	<insert id="memberDAO.insertMember">
+		insert into member(userid, pass, name, birth, phone, gender, zipcode, address)
+		values(#userid#, #pass#, #name#, STR_TO_DATE(#birth#, '%m/%d/%Y'), #phone#, #gender#, #zipcode#, #address#)
+	</insert>
+	
+	<select id="memberDAO.selectMemberIdCheck" resultClass="java.lang.Integer">
+		select count(*)
+		from member
+		where userid=#userid#
+		<!-- # #은 값을 ?로 가려주는 보안 기능이 있지만 '$ $'로 하면 콘솔에 값이 보여진다. -->
+	</select>
+	
+	<select id="memberDAO.selectPostList" resultClass="egovMap">
+		select concat(a1, a2, a3, a4, a5, a6, a7, a8) as addr
+	    from post
+	    where a4 like concat('%', #dong#, '%')
+	       or a5 like concat('%', #dong#, '%')
+	</select>
+	
+	<select id="memberDAO.selectMemberCount" resultClass="java.lang.Integer">
+		select count(*)
+		from member
+		where userid=#userid# and pass=#pass#
+	</select>
+	
+</sqlMap>
