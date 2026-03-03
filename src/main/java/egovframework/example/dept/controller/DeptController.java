@@ -18,7 +18,6 @@ public class DeptController {
 	
 	@Autowired
 	public DeptController(DeptService deptService) {
-		// 깃허브 수정 테스트
 		this.deptService = deptService;
 	}
 	
